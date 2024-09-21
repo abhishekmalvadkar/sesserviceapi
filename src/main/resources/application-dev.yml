@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${DEV_DB_HOST}:${DEV_DB_PORT}/${DEV_DB_NAME}
+    username: ${DEV_DB_USERNAME}
+    password: ${DEV_DB_PASSWORD}
+  jpa :
+    properties :
+      hibernate:
+        generate_statistics: true
+        format_sql : true
+
+logging:
+  level:
+    'com.amalvadkar.ses' : debug
+    'org.hibernate.stat' : debug
+    'org.hibernate.SQL' : debug
+    'org.hibernate.orm.jdbc.bind' : trace

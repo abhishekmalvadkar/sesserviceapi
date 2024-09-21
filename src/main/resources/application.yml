@@ -2,3 +2,6 @@ server :
   port : 9094
 
 
+logging:
+  file:
+    name: /var/ses/log/sesserviceapi/sesserviceapi.log
