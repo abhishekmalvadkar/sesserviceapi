@@ -5,7 +5,7 @@ import com.amalvadkar.ses.account.constants.AccountErrConstants;
 import com.amalvadkar.ses.account.entities.UserEntity;
 import com.amalvadkar.ses.account.exceptions.ConfirmPasswordUnMatchedException;
 import com.amalvadkar.ses.account.mapper.AccountMapper;
-import com.amalvadkar.ses.account.models.request.CreatePasswordRequest;
+import com.amalvadkar.ses.account.models.request.ChangePasswordRequest;
 import com.amalvadkar.ses.account.models.request.ForgotPasswordRequest;
 import com.amalvadkar.ses.account.models.request.SignInRequest;
 import com.amalvadkar.ses.account.models.request.SignUpRequest;
@@ -66,11 +66,11 @@ public class UserService {
     }
 
     @Transactional
-    public CustomResponse createPassword(CreatePasswordRequest createPasswordRequest) {
-        checkNewPasswordAndConfirmPassword(createPasswordRequest.newPassword(), createPasswordRequest.confirmPassword());
-        UserEntity userEntity = userRepo.getUserEntityByEmailAndTempPassword(createPasswordRequest.email(), createPasswordRequest.tempPassword());
+    public CustomResponse changePassword(ChangePasswordRequest changePasswordRequest) {
+        checkNewPasswordAndConfirmPassword(changePasswordRequest.newPassword(), changePasswordRequest.confirmPassword());
+        UserEntity userEntity = userRepo.getUserEntityByEmailAndTempPassword(changePasswordRequest.email(), changePasswordRequest.tempPassword());
         userEntity.setTempPassword(null);
-        userEntity.setPassword(createPasswordRequest.newPassword());
+        userEntity.setPassword(changePasswordRequest.newPassword());
         userRepo.save(userEntity);
         return CustomResponse.success(null, NEW_PASSWORD_CREATED_SUCCESSFULLY_RES_MSG);
     }

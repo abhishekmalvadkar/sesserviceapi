@@ -1,6 +1,6 @@
 package com.amalvadkar.ses.account.controllers;
 
-import com.amalvadkar.ses.account.models.request.CreatePasswordRequest;
+import com.amalvadkar.ses.account.models.request.ChangePasswordRequest;
 import com.amalvadkar.ses.account.models.request.ForgotPasswordRequest;
 import com.amalvadkar.ses.account.models.request.SignInRequest;
 import com.amalvadkar.ses.account.models.request.SignUpRequest;
@@ -22,7 +22,7 @@ public class AccountController {
     private static final String ENDPOINT_SIGN_UP = "/sign-up";
     private static final String ENDPOINT_UNLOCK_ACCOUNT = "/unlock-account";
     private static final String ENDPOINT_FORGOT_PASSWORD = "/forgot-password";
-    private static final String ENDPOINT_CREATE_PASSWORD = "/create-password";
+    private static final String ENDPOINT_CHANGE_PASSWORD = "/change-password";
     private final UserService userService;
 
     @PostMapping(ENDPOINT_SIGN_UP)
@@ -40,9 +40,9 @@ public class AccountController {
         return this.userService.forgotPassword(forgotPasswordRequest);
     }
 
-    @PostMapping(ENDPOINT_CREATE_PASSWORD)
-    public ResponseEntity<CustomResponse> createPassword(@Valid @RequestBody CreatePasswordRequest createPasswordRequest) {
-        return ResponseEntity.ok(this.userService.createPassword(createPasswordRequest));
+    @PostMapping(ENDPOINT_CHANGE_PASSWORD)
+    public ResponseEntity<CustomResponse>changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        return ResponseEntity.ok(this.userService.changePassword(changePasswordRequest));
     }
 
 
