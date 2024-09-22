@@ -3,7 +3,9 @@ package com.amalvadkar.ses.account.services;
 
 import com.amalvadkar.ses.account.constants.AccountErrConstants;
 import com.amalvadkar.ses.account.entities.UserEntity;
+import com.amalvadkar.ses.account.exceptions.AccountLockException;
 import com.amalvadkar.ses.account.exceptions.ConfirmPasswordUnMatchedException;
+import com.amalvadkar.ses.account.exceptions.UnauthorizedException;
 import com.amalvadkar.ses.account.mapper.AccountMapper;
 import com.amalvadkar.ses.account.models.request.ChangePasswordRequest;
 import com.amalvadkar.ses.account.models.request.ForgotPasswordRequest;
@@ -24,6 +26,7 @@ import java.util.Map;
 import static com.amalvadkar.ses.account.constants.AccountErrConstants.CONFIRM_PASSWORD_UN_MATCHED_ERR_MSG;
 import static com.amalvadkar.ses.account.constants.AccountResConstants.ACCOUNT_UNLOCKED_RES_MSG;
 import static com.amalvadkar.ses.account.constants.AccountResConstants.CHECK_EMAIL_FOR_UNLOCK_ACCOUNT_RES_MSG;
+import static com.amalvadkar.ses.account.constants.AccountResConstants.LOGGED_IN_SUCCESSFULLY_RES_MSG;
 import static com.amalvadkar.ses.account.constants.AccountResConstants.NEW_PASSWORD_CREATED_SUCCESSFULLY_RES_MSG;
 
 @Service
@@ -75,8 +78,22 @@ public class UserService {
         return CustomResponse.success(null, NEW_PASSWORD_CREATED_SUCCESSFULLY_RES_MSG);
     }
 
-    public void signIn(SignInRequest signInRequest) {
+    public CustomResponse signIn(SignInRequest signInRequest) {
+        UserEntity userEntity = this.userRepo.findByEmail(signInRequest.email()).orElseThrow(() -> new UnauthorizedException(AccountErrConstants.INVALID_USERNAME_OR_PASSWORD_ERR_MSG));
+        checkAccounLocked(userEntity);
+        checkCredentials(signInRequest.password(), userEntity.getPassword());
+        return CustomResponse.success(Map.of(userEntity.getId(),userEntity.getEmail()),LOGGED_IN_SUCCESSFULLY_RES_MSG);
+    }
+    private static void checkCredentials(String requestPassword, String actualPassword) {
+        if(!actualPassword.equals(requestPassword)){
+            throw new UnauthorizedException(AccountErrConstants.INVALID_USERNAME_OR_PASSWORD_ERR_MSG);
+        }
+    }
 
+    private static void checkAccounLocked(UserEntity userEntity) {
+        if(userEntity.getIsLocked()){
+            throw new AccountLockException(AccountErrConstants.ACCOUNT_IS_LOCKED_ERR_MSG);
+        }
     }
 
     private void checkForEmail(String email) {

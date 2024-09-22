@@ -23,6 +23,8 @@ public class AccountController {
     private static final String ENDPOINT_UNLOCK_ACCOUNT = "/unlock-account";
     private static final String ENDPOINT_FORGOT_PASSWORD = "/forgot-password";
     private static final String ENDPOINT_CHANGE_PASSWORD = "/change-password";
+    private static final String ENDPOINT_SIGN_IN = "/sign-in";
+
     private final UserService userService;
 
     @PostMapping(ENDPOINT_SIGN_UP)
@@ -46,8 +48,8 @@ public class AccountController {
     }
 
 
-    @PostMapping("/sign-in")
-    public void signIn(@Valid @RequestBody SignInRequest signInRequest){
-        this.userService.signIn(signInRequest);
+    @PostMapping(ENDPOINT_SIGN_IN)
+    public CustomResponse signIn(@Valid @RequestBody SignInRequest signInRequest){
+      return this.userService.signIn(signInRequest);
     }
 }

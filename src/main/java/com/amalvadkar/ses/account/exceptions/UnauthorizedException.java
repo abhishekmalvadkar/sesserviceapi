@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class InvalidTempPasswordException extends SesException {
-    public InvalidTempPasswordException(String message){
+public class UnauthorizedException extends SesException {
+    public UnauthorizedException(String message) {
         super(message, HttpStatus.UNAUTHORIZED.value());
     }
 }
