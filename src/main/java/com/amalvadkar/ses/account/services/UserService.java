@@ -23,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
+import static com.amalvadkar.ses.account.constants.AccountErrConstants.ACCOUNT_IS_LOCKED_ERR_MSG;
 import static com.amalvadkar.ses.account.constants.AccountErrConstants.CONFIRM_PASSWORD_UN_MATCHED_ERR_MSG;
+import static com.amalvadkar.ses.account.constants.AccountErrConstants.INVALID_USERNAME_OR_PASSWORD_ERR_MSG;
 import static com.amalvadkar.ses.account.constants.AccountResConstants.ACCOUNT_UNLOCKED_RES_MSG;
 import static com.amalvadkar.ses.account.constants.AccountResConstants.CHECK_EMAIL_FOR_UNLOCK_ACCOUNT_RES_MSG;
 import static com.amalvadkar.ses.account.constants.AccountResConstants.LOGGED_IN_SUCCESSFULLY_RES_MSG;
@@ -35,6 +37,7 @@ import static com.amalvadkar.ses.account.constants.AccountResConstants.NEW_PASSW
 public class UserService {
 
     private static final String ID = "id";
+    private static final String NAME = "name";
     private final AccountMapper accountMapper;
     private final UserRepo userRepo;
 
@@ -51,7 +54,7 @@ public class UserService {
 
     @Transactional
     public CustomResponse unlockAccount(UnlockAccountRequest unlockAccountRequest) {
-        checkNewPasswordAndConfirmPassword(unlockAccountRequest.newPassword(), unlockAccountRequest.confirmPassword());
+        checkForNewPasswordAndConfirmPassword(unlockAccountRequest.newPassword(), unlockAccountRequest.confirmPassword());
         UserEntity userEntity = userRepo.getUserEntityByEmailAndTempPassword(unlockAccountRequest.email(), unlockAccountRequest.tempPassword());
         userEntity.setTempPassword(null);
         userEntity.setPassword(unlockAccountRequest.newPassword()); // we will hash it
@@ -70,7 +73,7 @@ public class UserService {
 
     @Transactional
     public CustomResponse changePassword(ChangePasswordRequest changePasswordRequest) {
-        checkNewPasswordAndConfirmPassword(changePasswordRequest.newPassword(), changePasswordRequest.confirmPassword());
+        checkForNewPasswordAndConfirmPassword(changePasswordRequest.newPassword(), changePasswordRequest.confirmPassword());
         UserEntity userEntity = userRepo.getUserEntityByEmailAndTempPassword(changePasswordRequest.email(), changePasswordRequest.tempPassword());
         userEntity.setTempPassword(null);
         userEntity.setPassword(changePasswordRequest.newPassword());
@@ -79,21 +82,29 @@ public class UserService {
     }
 
     public CustomResponse signIn(SignInRequest signInRequest) {
-        UserEntity userEntity = this.userRepo.findByEmail(signInRequest.email()).orElseThrow(() -> new UnauthorizedException(AccountErrConstants.INVALID_USERNAME_OR_PASSWORD_ERR_MSG));
-        checkAccounLocked(userEntity);
-        checkCredentials(signInRequest.password(), userEntity.getPassword());
-        return CustomResponse.success(Map.of(userEntity.getId(),userEntity.getEmail()),LOGGED_IN_SUCCESSFULLY_RES_MSG);
+        UserEntity userEntity = userRepo.findByEmailOrThrowUnauthorizedException(signInRequest.email());
+        checkForAccountLock(userEntity);
+        checkForCredentials(signInRequest.password(), userEntity.getPassword());
+        return CustomResponse.success(Map.of(
+                    ID, userEntity.getId(),
+                    NAME, userEntity.getName()),
+                LOGGED_IN_SUCCESSFULLY_RES_MSG);
     }
-    private static void checkCredentials(String requestPassword, String actualPassword) {
-        if(!actualPassword.equals(requestPassword)){
-            throw new UnauthorizedException(AccountErrConstants.INVALID_USERNAME_OR_PASSWORD_ERR_MSG);
+
+    private static void checkForCredentials(String requestPassword, String actualPassword) {
+        if(notMatched(requestPassword, actualPassword)){
+            throw new UnauthorizedException(INVALID_USERNAME_OR_PASSWORD_ERR_MSG);
         }
     }
 
-    private static void checkAccounLocked(UserEntity userEntity) {
-        if(userEntity.getIsLocked()){
-            throw new AccountLockException(AccountErrConstants.ACCOUNT_IS_LOCKED_ERR_MSG);
+    private static void checkForAccountLock(UserEntity user) {
+        if(accountIsLockedOf(user)){
+            throw new AccountLockException(ACCOUNT_IS_LOCKED_ERR_MSG);
         }
+    }
+
+    private static Boolean accountIsLockedOf(UserEntity userEntity) {
+        return userEntity.getIsLocked();
     }
 
     private void checkForEmail(String email) {
@@ -106,13 +117,13 @@ public class UserService {
         return userRepo.existsByEmail(email);
     }
 
-    private static void checkNewPasswordAndConfirmPassword(String newPassword, String confirmPassword) {
+    private static void checkForNewPasswordAndConfirmPassword(String newPassword, String confirmPassword) {
         if (notMatched(newPassword, confirmPassword)) {
             throw new ConfirmPasswordUnMatchedException(CONFIRM_PASSWORD_UN_MATCHED_ERR_MSG);
         }
     }
 
-    private static boolean notMatched(String newPassword, String confirmPassword) {
-        return !newPassword.equals(confirmPassword);
+    private static boolean notMatched(String password, String anotherPassword) {
+        return !password.equals(anotherPassword);
     }
 }
