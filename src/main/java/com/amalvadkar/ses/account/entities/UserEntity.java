@@ -1,5 +1,6 @@
 package com.amalvadkar.ses.account.entities;
 
+import com.amalvadkar.ses.common.entities.AbstractBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;

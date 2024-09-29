@@ -1,7 +1,21 @@
-server :
-  port : 9094
+server:
+  port: 9094
 
 
 logging:
   file:
     name: /var/ses/log/sesserviceapi/sesserviceapi.log
+
+ses:
+  enquiryStatusDropdownOptions:
+    - key: New
+      value: New
+    - key: Enrolled
+      value: Enrolled
+    - key: Lost
+      value: Lost
+  classModeDropDownOptions:
+    -  key: Classroom
+       value: Classroom
+    -  key: Online
+       value: Online

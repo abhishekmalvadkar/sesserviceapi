@@ -1,4 +1,4 @@
-package com.amalvadkar.ses.account.entities;
+package com.amalvadkar.ses.common.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;

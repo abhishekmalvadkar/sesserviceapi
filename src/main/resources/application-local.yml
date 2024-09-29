@@ -1,0 +1,19 @@
+spring :
+  datasource:
+    url: jdbc:mysql://localhost:3306/ses_db
+    username: root
+    password : root
+  jpa :
+    properties :
+      hibernate:
+        generate_statistics: true
+        format_sql : true
+
+logging:
+  level:
+    'com.amalvadkar.ses' : debug
+    'org.hibernate.stat' : debug
+    'org.hibernate.SQL' : debug
+    'org.hibernate.orm.jdbc.bind' : trace
+  file:
+    name: /var/ses/log/sesserviceapi/sesserviceapi.log
